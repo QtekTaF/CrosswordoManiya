@@ -1,4 +1,4 @@
-# V.1.0.12 alpha 28-01-2020
+# V.1.0.13 alpha 28-01-2020
 # add Letter in Images  scr00.png,scr01.png etc
 import sys
 import os
@@ -25,13 +25,6 @@ global txt_label
 txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.12 28-01-2020"
 WINDOW_SIZE = (800, 600)
 #screen = pygame.display.set_mode(WINDOW_SIZE)
-
-
-# load the font only once instead of every frame
-# class name should be singular
-# we store all Sprites in a Group, so we can easily
-# call the 'update' and 'draw' functions of the Buttons
-# in the main loop
 
 
 # -----------------------------------------------------------------------------
@@ -133,7 +126,7 @@ def play_function(difficulty, font, test=False):
         file_imageL = []
         fi = ''
         i = 0
-        for i in range(0,8):
+        for i in range(0,16):
             if i<10:
                 fi =  "scr0"+str(i)+".png"
                 file_imageL.append(fi)
@@ -457,7 +450,7 @@ def play_function(difficulty, font, test=False):
         for i in range(0,len(btn_array)):
             spritesMsg.add(btn_array[i])
 
-        for i in range(0,8):
+        for i in range(0,16):
             load_ILsprite(0,0,i)
 
         pos = pygame.mouse.get_pos()
