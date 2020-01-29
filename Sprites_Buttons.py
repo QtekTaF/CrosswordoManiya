@@ -7,7 +7,7 @@ font = pygame.font.SysFont("Grobold", 20)
 pygame.init()
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, color, color_hover, rect, callback, text='', outline=None):
+    def __init__(self, color, color_hover, rect, callback, text='',outline=None):
         super().__init__()
         self.text = text
 
