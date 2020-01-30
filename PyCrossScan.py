@@ -1,5 +1,7 @@
-# V.1.0.17 alpha 30-01-2020
+#!/usr/bin/python3
+# V.1.0.18 alpha 30-01-2020
 # add Letter in Images  scr00.png,scr01.png etc
+import codecs
 import sys
 import os
 import csv
@@ -8,7 +10,6 @@ sys.path.insert(0, '../../')
 
 
 from random import randrange
-#from gs_btn import Button
 from Sprites_Buttons import Button, ButtonI, ButtonIL
 
 import pygame
@@ -22,8 +23,8 @@ global screen
 global main_menu
 global clock
 global txt_label
-txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.17 30-01-2020"
-WINDOW_SIZE = (800, 600)
+txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.18 30-01-2020"
+WINDOW_SIZE = (1000, 600)
 #screen = pygame.display.set_mode(WINDOW_SIZE)
 
 
@@ -155,8 +156,34 @@ def play_function(difficulty, font, test=False):
                 rt.append(line["shablon"])
 #                print("N=",i,": ",line["shablon"],"rt: ",rt[i]," len= ",len(rt[i]))
                 i = i + 1
-        with open("rtext.csv") as f_obj:
-            csv_dict_reader(f_obj)
+        if os.path.exists("rtext_current.csv"):
+            with open("rtext_current.csv") as f_obj:
+                csv_dict_reader(f_obj)
+        else:
+            with open("rtext.csv") as f_obj:
+                csv_dict_reader(f_obj)
+
+        def csv_dict_writer(path, fieldnames, data):
+#        """
+#        Writes a CSV file using DictWriter
+#        """
+            with open(path,"w") as out_file:
+      #          out_file.write(codecs.BOM_UTF8)
+                writer = csv.DictWriter(out_file, lineterminator='\r\n', delimiter=',', fieldnames=fieldnames)
+                writer.writeheader()
+                for row in data:
+                    writer.writerow(row)
+                out_file.close()
+
+        def write_rtext():
+            my_list = []
+            data = []
+
+            for row in range(0,len(rt)):
+                data.append({"shablon":rt[row]})
+            fieldnames = data[0]
+            path = "rtext_current.csv"
+            csv_dict_writer(path, fieldnames, data)
 
         mess = []
         def csv_dict_reader(file_obj):  # чтение файла csv
@@ -201,24 +228,6 @@ def play_function(difficulty, font, test=False):
            #     print("i= ",i,"letter= ",line["letter"])
         with open("Abc.csv") as f_obj:
             csv_dict_reader(f_obj)
-
-        def  inp_text1(kx,ky,vks,vv):
-            fontT = pygame.font.Font(None, 16)
-            input_box = pygame. Rect(20+kx*20, 20+ky*20, 20, 20)
-            color_inactive = pygame. Color('green')
-            color_active = pygame. Color('blue')
-            color = color_inactive
-            text = 'N'
-            txt_surface = fontT.render(text, True, color)
-        # Resize the box if the text is too long.
-            width = max(200, txt_surface.get_width()+20)
-            input_box.w = width
-        # Blit the text.
-            screen.blit(txt_surface, (input_box.x+2, input_box.y-2))
-        # Blit the input_box rect.
-            pygame.draw.rect(screen, color, input_box, 20)
-            pygame.display.update(input_box)
-            pygame.time.delay(1200)
 
         def input_letter(kx,ky,logic_lett, logbit):
              global nx
@@ -359,6 +368,7 @@ def play_function(difficulty, font, test=False):
         spritesTmp = pygame.sprite.Group()
         spritesImg = pygame.sprite.Group()
         spritesLetters = pygame.sprite.Group()
+        spritesMenu = pygame.sprite.Group()
         main_background()
         spritesOne.add(Button(pygame.Color('dodgerblue2'),
                                        pygame.Color('lightskyblue3'),
@@ -368,6 +378,13 @@ def play_function(difficulty, font, test=False):
                                        pygame.Color('black')))
         #mxi = 22
         #myj = 22
+        spritesMenu.add(Button(pygame.Color('GREEN'),
+                                       pygame.Color('BLUE'),
+                                       pygame.Rect(470,15,250,25),
+                                       lambda a: write_rtext(),
+                                       'Сохранение введенных данных',
+                                       pygame.Color('black')))
+
         ks  = 0
         msg_list = []
         btn_array = []
@@ -381,13 +398,15 @@ def play_function(difficulty, font, test=False):
                 if kr[i][j] == "1":
                    # mxi = 22 + i * 20
                     #myj = 22 + j * 20
-                    sprites.add(Button(pygame.Color('blue'),
-                                       pygame.Color(255,255,255),
-                                       pygame.Rect(22+j*20,22+i*20, 16, 16),
-                                       lambda b: print(f"Button '{b.text}' was clicked"),
-                                       rt[i][j],
-                                       pygame.Color('black')))
-
+                    if rt[i][j] == '_':
+                        sprites.add(Button(pygame.Color('blue'),
+                                           pygame.Color(255,255,255),
+                                           pygame.Rect(22+j*20,22+i*20, 16, 16),
+                                           lambda b: print(f"Button '{b.text}' was clicked"),
+                                           rt[i][j],
+                                           pygame.Color('blue')))
+                    else:
+                        reload_abc(i,j)
                     m = m + 1 # номер ячейки в списке
                 else:
                     if kr[i][j] == "?":
@@ -440,6 +459,7 @@ def play_function(difficulty, font, test=False):
         spritesImg.draw(screen)
         spritesTmp.draw(screen)
         spritesLetters.draw(screen)
+        spritesMenu.draw(screen)
 
      #   for j in range(0,len(mapfrm)):      # прорисовка стрелок
      #       if mapfrm[j][2] == "09" :
@@ -516,12 +536,14 @@ def play_function(difficulty, font, test=False):
         spritesImg.update(events)
         spritesTmp.update(events)
         spritesLetters.update(events)
+        spritesMenu.update(events)
         spritesOne.draw(screen)
         sprites.draw(screen)
         spritesMsg.draw(screen)
         spritesImg.draw(screen)
         spritesTmp.draw(screen)
         spritesLetters.draw(screen)
+        spritesMenu.draw(screen)
 
         pos = pygame.mouse.get_pos()
        # btnI = ButtonI(pos,"images/iks09.png")
@@ -584,8 +606,8 @@ def main(test=False):
                                 color_selected=WHITE,
                                 font=pygameMenu.font.FONT_PT_SERIF,
                                 font_color=BLACK,
-                                font_size=10,
-                                menu_alpha=30,
+                                font_size=20,
+                                menu_alpha=40,
                                 menu_color=MENU_BACKGROUND_COLOR,
                                 menu_height=int(WINDOW_SIZE[1] * 0.7),
                                 menu_width=int(WINDOW_SIZE[0] * 0.9),
