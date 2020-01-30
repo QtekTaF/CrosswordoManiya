@@ -1,4 +1,4 @@
-# V.1.0.15 alpha 29-01-2020
+# V.1.0.17 alpha 30-01-2020
 # add Letter in Images  scr00.png,scr01.png etc
 import sys
 import os
@@ -22,7 +22,7 @@ global screen
 global main_menu
 global clock
 global txt_label
-txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.15 29-01-2020"
+txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.17 30-01-2020"
 WINDOW_SIZE = (800, 600)
 #screen = pygame.display.set_mode(WINDOW_SIZE)
 
@@ -187,10 +187,9 @@ def play_function(difficulty, font, test=False):
             for line in reader:
                 mass_rul.append((line["n1"],line["n2"],line["n3"]))
                 i = i + 1
-                print("i= ",i,"n1x= ",line["n1"]," n2y= ",line["n2"]," n3= ",line["n3"])
+            #    print("i= ",i,"n1x= ",line["n1"]," n2y= ",line["n2"]," n3= ",line["n3"])
         with open("rules.csv") as f_obj:
             csv_dict_reader(f_obj)
-        print(mass_rul)
 
         mass_abc = []
         def csv_dict_reader(file_obj):  # чтение файла csv
@@ -199,10 +198,9 @@ def play_function(difficulty, font, test=False):
             for line in reader:
                 mass_abc.append((line["letter"]))
                 i = i + 1
-                print("i= ",i,"letter= ",line["letter"])
+           #     print("i= ",i,"letter= ",line["letter"])
         with open("Abc.csv") as f_obj:
             csv_dict_reader(f_obj)
-        print(mass_abc)
 
         def  inp_text1(kx,ky,vks,vv):
             fontT = pygame.font.Font(None, 16)
@@ -226,7 +224,7 @@ def play_function(difficulty, font, test=False):
              global nx
              global ny
              if logic_lett:
-                 print("Истина")
+           #      print("Истина")
 
                  lett = '_'
                  txt = "отладка ввода буквы"
@@ -234,84 +232,24 @@ def play_function(difficulty, font, test=False):
                  if not logbit :
                      nx=kx//20 - 1  # поправки -1
                      ny=ky//20 - 1  # с учетом оступов на 20  слева и сверху
-                     print("txt= ",txt,"к-ты: ",nx,ny)
+            #         print("txt= ",txt,"к-ты: ",nx,ny)
                  else:
                      n2x=kx//20 - 1  # поправки -1
                      #rt[nx].replace('_',mass_abc[n2x])
                      rtnew1=rt[ny][0:nx]
-                     print("rtnew1= ",rtnew1)
+             #        print("rtnew1= ",rtnew1)
                      rtnew2=rt[ny][nx+1:]
-                     print("rtnew2= ",rtnew2)
+              #       print("rtnew2= ",rtnew2)
                      rtnew =rtnew1+mass_abc[n2x]+rtnew2
-                     print("rtnew= ",rtnew)
+               #      print("rtnew= ",rtnew)
                      rt[ny] = rtnew
-                     print("rt[ny]= ",rt[ny])
-                     print("Текущий шаблон ",rt)
+                #     print("rt[ny]= ",rt[ny])
+                 #    print("Текущий шаблон ",rt)
                      reload_abc(ny,nx)
              else:
                  print("Повторите ввод")
                  logic_lett = True
 
-        def  inp_txt():
-
-            font = pygame.font.Font(None, 32)
-    #        clock = pygame. time.Clock()
-            input_box = pygame. Rect(20, 590, 140, 32)
-            color_inactive = pygame. Color('lightskyblue3')
-            color_active = pygame. Color('dodgerblue2')
-            color = color_inactive
-            active = False
-            text = ''
-            done = True
-            spritesOne.draw(screen)
-            sprites.draw(screen)
-           # spritesMsg.draw(screen)
-            spritesTmp.draw(screen)
-            screen.blit(textA, [500,42])
-          #  screen.blit(text, [500,70])
-            screen.blit(f, [20,500])
-
-            pygame.display.update()
-            p = 0
-#            while done:
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    done = False
-                if e.type == pygame.MOUSEBUTTONDOWN:
-                #  If the user clicked on the input_box rect.
-                    if input_box.collidepoint(e.pos):
-                    # Toggle the active variable.
-                        active = not active
-                    else:
-                        active = False
-                # Change the current color of the input box.
-                    color = color_active if active else color_inactive
-                if e.type == pygame.KEYDOWN:
-                    if active:
-                        if e.key == pygame.K_RETURN:
-                            print(text)
-                            text = ''
-                        elif e.key == pygame.K_BACKSPACE:
-                            text = text[:-1]
-                        else:
-                            text += e.unicode
-    #           screen.blit(text, [400,550])
-#            screen.fill((30, 30, 30))
-       # Render the current text.
-            txt_surface = font.render(text, True, color)
-        # Resize the box if the text is too long.
-            width = max(200, txt_surface.get_width()+10)
-            input_box.w = width
-        # Blit the text.
-            screen.blit(txt_surface, (input_box.x+5, input_box.y+5))
-        # Blit the input_box rect.
-            pygame.draw.rect(screen, color, input_box, 2)
-            pygame.display.update(input_box)
-    #    pygame. display.flip()
-               # p +=1
-               # print(p,"отладка")
-            # ??? ruby.remove()     ------------------------------
-                #pygame.display.update()
         # загрузка спрайта стрелок
         def load_Isprite(ni,nj,nks):
             mprm = mapfrm[nks][2]
@@ -368,10 +306,10 @@ def play_function(difficulty, font, test=False):
             # pygame.display.flip()
             pygame.time.delay(1200)
             spritesTmp.remove(ruby)
-            inp_txt()
             return None
 
-        # функция вызываемая из спрайтов
+        # функция вызываемая из спрайтов для вывода
+        # контекстной подсказки к блокам помеченным "?"
         def print_sprite(kx,ky,vks,vv):
             nx = 0
             ny = 0
@@ -437,7 +375,7 @@ def play_function(difficulty, font, test=False):
         j = 0
         m = 0
         for i in range(0,23):
-            stroka = ''
+#            stroka = ''
             for j in range(0,22):
   #              stroka = stroka + kr[i][j]
                 if kr[i][j] == "1":
@@ -453,23 +391,8 @@ def play_function(difficulty, font, test=False):
                     m = m + 1 # номер ячейки в списке
                 else:
                     if kr[i][j] == "?":
-                     #   mxi = 22 + i * 20
-                     #   myj = 22 + j * 20
-                        mprm = mapfrm[ks][2]
-                        mp =int(mprm)
-                        filename = file_image[mp]
-
-                        p1 = int(mass_rul[mp][0]) # смещение по х
-                        p2 = int(mass_rul[mp][1]) # смещение по у
-                        spritesImg.add(ButtonI(pygame.Color('dodgerblue2'),
-                                               pygame.Color('green'),
-                                               pygame.Rect(20+p1*20+j*20,20+p2*20+i*20, 20, 20),
-                                               lambda a: inp_text1(i,j,ks,0),
-                                               "I",
-                                               pygame.Color('black'),
-                                               filename))
-
                         msg_list.append([(j,i),ks])
+                        load_Isprite(i,j,ks)
                         btn_array.append(Button(pygame.Color(0+ks,125,125),
                                                 pygame.Color('YELLOW'),
                                                 pygame.Rect(22+j*20,22+i*20, 16, 16),
@@ -498,7 +421,7 @@ def play_function(difficulty, font, test=False):
                                                     "?",
                                                     pygame.Color('black')))
                             ks = ks + 1
-            print(stroka)
+ #           print(stroka)
 #        print(msg_list)
         for i in range(0,len(btn_array)):
             spritesMsg.add(btn_array[i])
@@ -524,9 +447,9 @@ def play_function(difficulty, font, test=False):
      #       if mapfrm[j][2] == "08":
      #           screen.blit(image_array[8], (20 + int(mapfrm[j][1])*20,40 + 20*int(mapfrm[j][0])))
         pos = pygame.mouse.get_pos()
-        screen.blit(textA, [25,522])
+        screen.blit(textA, [500,20])
    #     screen.blit(text, [25,42])
-        screen.blit(f, [20,566])
+        screen.blit(f, [500,56])
         pygame.display.flip()
      #   pygame.display.update()
 
