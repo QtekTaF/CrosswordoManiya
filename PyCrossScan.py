@@ -1,10 +1,11 @@
 #!/usr/bin/python3
-# V.1.0.18 alpha 30-01-2020
+# V.1.0.20 alpha 1-02-2020
 # add Letter in Images  scr00.png,scr01.png etc
 import codecs
 import sys
 import os
 import csv
+import copy
 
 sys.path.insert(0, '../../')
 
@@ -23,8 +24,8 @@ global screen
 global main_menu
 global clock
 global txt_label
-txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.18 30-01-2020"
-WINDOW_SIZE = (1000, 600)
+txt_label = "My Game 'Scanword&Crossword' alpha v.1.0.20 1-02-2020"
+WINDOW_SIZE = (800, 600)
 #screen = pygame.display.set_mode(WINDOW_SIZE)
 
 
@@ -114,6 +115,8 @@ def play_function(difficulty, font, test=False):
         file_image = []
         fi = ''
         i = 0
+        obrabotka = False
+
         for i in range(0,11):
             if i<10:
                 fi =  "iks0"+str(i)+".png"
@@ -184,6 +187,101 @@ def play_function(difficulty, font, test=False):
             fieldnames = data[0]
             path = "rtext_current.csv"
             csv_dict_writer(path, fieldnames, data)
+
+        def ext_replace(str1,str2,n):
+            j = 0
+            rezult_str = ''
+            if n>len(str1):
+                print("otladka(error): ",n,str1,str2)
+                return str1
+            for j in range(0,n):
+                rezult_str = rezult_str + str1[j]
+            #print("1-отладка: ",n,str1,str2," rez:",rezult_str)
+            k = 0
+            j = n
+            for j in range(n,n+len(str2)):
+                rezult_str = rezult_str + str2[k]
+            #print("2-отладка: ",n,"str2[k]= ",str2[k]," rez:",rezult_str)
+                k = k + 1
+            k = len(rezult_str)
+            for j in range(k,len(str1)):
+                rezult_str = rezult_str + str1[j]
+            #print("str1[j]= ",str1[j],"j= ",j,":3:",n,str1,str2," rez:",rezult_str)
+            return rezult_str
+
+        def verification_rtext():
+            print("верификация текста")
+            rt_all = copy.deepcopy(rt)
+            #mess[i][1]  - слово
+            #mapfrm[i][0] - индекс х по горизонтали
+            #mapfrm[i][1] - индекс у по вертикали
+            #mapfrm[i][2] - код стрелки
+            #mapfrm[i][3] - длина слова
+            #mass_rul[j][0] - правило смещения по х для начала слова
+            #mass_rul[j][1] - правило смещения по y для начала слова
+            #mass_rul[j][2] - направление: 1 - вправо, 0 - вниз
+
+            for i in range(0,len(mess)):
+                row = int(mapfrm[i][0]) # номер ряда с 0
+                pos = int(mapfrm[i][1]) # позиция в строке
+                kyu = int(mapfrm[i][2]) # тип стрелки
+                direction =  int(mass_rul[kyu][2]) # направление
+                rul_x = int(mass_rul[kyu][0])  # смещение в строке - column 1-,0,+1
+                rul_y = int(mass_rul[kyu][1])  # смещение ряда -1,0,+1
+                pos = pos + rul_x
+                row = row + rul_y
+                word = mess[i][1]
+                if direction == 1:
+                    rt_all[row] = ext_replace(rt_all[row],word,pos)
+                else:
+                    for j in range(0,len(word)):
+                        letter = word[j]
+                        row_letter = row + j
+         #               print("word=",word," letter=",letter," row=",row_letter," j=",j)
+                        rt_all[row_letter] = ext_replace(rt_all[row_letter],letter,pos)
+            for j in range(0,len(rt_all)):
+                rt_all[j] = rt_all[j].upper()  # перевод в верхний регистр
+                if j<10:
+                    print("Row= ",j,": ",rt_all[j])
+                else:
+                    print("Row=",j,": ",rt_all[j])
+            all_err = 0
+            err_num = 0
+            for i in range(0,len(rt)):
+                word =''
+                err_num = 0
+                for j in range(0,len(rt[i])):
+                    if rt[i][j].isalpha():
+                        if rt[i][j] != rt_all[i][j]:
+                            err_num = err_num + 1
+                   #     word = word + rt[i][j]
+                            print(i,": letter= ",rt[i][j]," err_num= ",err_num)
+                all_err = all_err + err_num
+            if all_err == 0:
+                PanelInfo("Верификация пройдена")
+            else:
+                PanelInfo("Верификация, ошибок: " + str(all_err))
+        def PanelInfo(info_text):
+            iruby = Button(pygame.Color('GREEN'),
+                           pygame.Color('BLUE'),
+                           pygame.Rect(470,150,250,100),
+                           lambda b: print(f"Button '{b.text}' was clicked"),
+                           info_text,
+                           pygame.Color('black'))
+
+            spritesInfo.add(iruby)
+            spritesOne.draw(screen)
+            sprites.draw(screen)
+            spritesMsg.draw(screen)
+            spritesImg.draw(screen)
+            spritesTmp.draw(screen)
+            spritesLetters.draw(screen)
+            spritesInfo.draw(screen)
+            pygame.display.update()
+
+            pygame.time.delay(1200)
+            spritesTmp.remove(iruby)
+            return None
 
         mess = []
         def csv_dict_reader(file_obj):  # чтение файла csv
@@ -285,6 +383,7 @@ def play_function(difficulty, font, test=False):
                                    mass_abc[nks][0],
                                    pygame.Color('black'),
                                    filename))
+
         def reload_abc(i,j):   # выяснить как удалить старый спрайт
             sprites.add(Button(pygame.Color('green'),
                                pygame.Color(128,128,128),
@@ -369,6 +468,7 @@ def play_function(difficulty, font, test=False):
         spritesImg = pygame.sprite.Group()
         spritesLetters = pygame.sprite.Group()
         spritesMenu = pygame.sprite.Group()
+        spritesInfo = pygame.sprite.Group()
         main_background()
         spritesOne.add(Button(pygame.Color('dodgerblue2'),
                                        pygame.Color('lightskyblue3'),
@@ -383,6 +483,13 @@ def play_function(difficulty, font, test=False):
                                        pygame.Rect(470,15,250,25),
                                        lambda a: write_rtext(),
                                        'Сохранение введенных данных',
+                                       pygame.Color('black')))
+
+        spritesMenu.add(Button(pygame.Color('GREEN'),
+                                       pygame.Color('BLUE'),
+                                       pygame.Rect(470,45,250,25),
+                                       lambda a: verification_rtext(),
+                                       'Верификация введенных данных',
                                        pygame.Color('black')))
 
         ks  = 0
